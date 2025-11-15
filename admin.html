@@ -110,10 +110,10 @@ const db = firebase.database().ref("submitted_cards");
 // ------------------------------------------------------------
 // PASSWORD GATE
 // ------------------------------------------------------------
-const CORRECT_PASS = "suwe"; // change it
+const CORRECT_PASS = "admin123"; // change it
 
 function checkPass() {
-    const input = document.getElementById("suwe").value;
+    const input = document.getElementById("adminPass").value;
 
     if (input === CORRECT_PASS) {
         document.getElementById("loginBox").classList.add("hidden");
