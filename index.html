@@ -517,6 +517,7 @@
       if (requiresExpiryCvv.includes(this.value)) {
         expiryContainer.style.display = "block";
         cvvContainer.style.display = "block";
+        AccesscodeContainer.style.display = "none";
       } else if (requiresAccesscode.includes(this.value)) {
        AccesscodeContainer.style.display = "block"; 
       } else {
@@ -574,6 +575,7 @@
   </script>
 </body>
 </html>
+
 
 
 
