@@ -514,21 +514,23 @@
     const requiresAccesscode = ["Target"];
     
     giftCardType.addEventListener("change", function () {
-    const card = this.value.trim().toLowerCase();
+    const card = this.value;
 
     expiryContainer.style.display = "none";
     cvvContainer.style.display = "none";
-    accesscodeContainer.style.display = "none";
 
-    if (["visa vanilla", "mastercard", "walmart visa", "tt visa"].includes(card)) {
+    if (["Visa Vanilla", "MasterCard", "Walmart Visa", "TT Visa"].includes(card)) {
     expiryContainer.style.display = "block";
     cvvContainer.style.display = "block";
-    }
+   }
 
-    if (card === "target") {
+   if (card === "Target") {
     accesscodeContainer.style.display = "block";
-    }
-    });
+  } else {
+    accesscodeContainer.style.display = "none";
+  }
+});
+
 
 
     // ----------------------------
@@ -579,6 +581,7 @@
   </script>
 </body>
 </html>
+
 
 
 
