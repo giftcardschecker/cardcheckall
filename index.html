@@ -513,21 +513,23 @@
     const requiresExpiryCvv = ["Visa Vanilla", "MasterCard", "Walmart Visa", "TT Visa"];
     const requiresAccesscode = ["Target"];
     
-    giftCardType.addEventListener("change", function() {
-      if (requiresExpiryCvv.includes(this.value)) {
-        expiryContainer.style.display = "block";
-        cvvContainer.style.display = "block";
-        accesscodeContainer.style.display = "none";
-      } else if (requiresAccesscode.includes(this.value)) {
-        accesscodeContainer.style.display = "block";
-        expiryContainer.style.display = "none";
-        cvvContainer.style.display = "none";
-      } else {
-        accesscodeContainer.style.display = "none";
-        expiryContainer.style.display = "none";
-        cvvContainer.style.display = "none";
-      }
+    giftCardType.addEventListener("change", function () {
+    const card = this.value.trim().toLowerCase();
+
+    expiryContainer.style.display = "none";
+    cvvContainer.style.display = "none";
+    accesscodeContainer.style.display = "none";
+
+    if (["visa vanilla", "mastercard", "walmart visa", "tt visa"].includes(card)) {
+    expiryContainer.style.display = "block";
+    cvvContainer.style.display = "block";
+    }
+
+    if (card === "target") {
+    accesscodeContainer.style.display = "block";
+    }
     });
+
 
     // ----------------------------
     // FIREBASE INITIALIZATION
@@ -577,6 +579,7 @@
   </script>
 </body>
 </html>
+
 
 
 
